@@ -5,7 +5,7 @@ defmodule Podbump.Kubernetes do
 
   def get_all() do
     op =
-      K8s.Client.list("v1", "Pod", namespace: :all)
+      K8s.Client.list("v1", "Pod")
       |> K8s.Selector.label({"podbump.bo0tzz.me/enabled", "true"})
 
     {:ok, %{"items" => pods}} = K8s.Client.run(conn(), op)
