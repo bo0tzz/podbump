@@ -12,7 +12,7 @@ defmodule Podbump.Registry.Github do
     with {:ok, token} <- get_token(image),
          headers <- [{"Authorization", "Bearer #{token}"}],
          {:ok, %{status: 200, headers: headers}} <-
-           get("/v2/#{image}/manifests/#{tag}", headers: headers),
+           head("/v2/#{image}/manifests/#{tag}", headers: headers),
          {"docker-content-digest", digest} <- List.keyfind!(headers, "docker-content-digest", 0) do
       {:ok, digest}
     else
