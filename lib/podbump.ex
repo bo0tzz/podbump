@@ -1,18 +1,29 @@
 defmodule Podbump do
-  @moduledoc """
-  Documentation for `Podbump`.
-  """
+  require Logger
 
-  @doc """
-  Hello world.
+  def is_latest_image(pod) do
+    %{image: image, digest: current_digest} = Podbump.Kubernetes.current_image(pod)
+    {:ok, latest_digest} = Podbump.Registry.latest_digest(image)
 
-  ## Examples
+    current_digest == latest_digest
+  end
 
-      iex> Podbump.hello()
-      :world
+  def run() do
+    pods = Podbump.Kubernetes.get_all()
 
-  """
-  def hello do
-    :world
+    Logger.info("Podbump is evaluating #{Enum.count(pods)} pods")
+
+    Task.async_stream(pods, fn pod ->
+      name = pod["metadata"]["name"]
+
+      if not is_latest_image(pod) do
+        Logger.warn("Pod #{name} is running an outdated image - deleting it")
+        Podbump.Kubernetes.delete_pod(pod)
+      end
+
+      :ok
+    end)
+    # Consume the stream so it runs
+    |> Enum.to_list()
   end
 end
