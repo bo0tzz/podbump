@@ -10,3 +10,10 @@ get_k8s_conn = fn ->
 end
 
 config :podbump, Podbump.Kubernetes, conn: get_k8s_conn.()
+
+schedule = System.get_env("PODBUMP_SCHEDULE", "@daily")
+
+config :podbump, Podbump.Scheduler,
+  jobs: [
+    {schedule, {Podbump, :run, []}}
+  ]
