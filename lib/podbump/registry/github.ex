@@ -6,6 +6,7 @@ defmodule Podbump.Registry.Github do
 
   plug(Tesla.Middleware.BaseUrl, "https://ghcr.io")
   plug(Tesla.Middleware.JSON)
+  plug Tesla.Middleware.Headers, [{"Accept", "application/vnd.oci.image.index.v1+json"}]
 
   @impl true
   def latest_digest(image, tag) do
